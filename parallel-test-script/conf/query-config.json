@@ -1,0 +1,4 @@
+[
+  {"type":"sample-3month", "rate":0.8, "scripts":["sample.sql"]},
+  {"type":"sample-6month", "rate":0.2, "scripts":["sample.sql"]}
+]

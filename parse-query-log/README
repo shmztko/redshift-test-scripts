@@ -1,0 +1,77 @@
+## Redshiftクエリログ抽出スクリプト
+
+Redshift内のシステムテーブルからクエリの実行時間、クエリテキスト全文を取得します。
+
+## ディレクトリ構成
+.                                     : このスクリプトのルートディレクトリ。
+├── conf
+│   └── parse-config.json             : パース設定用ファイル。
+├── samples
+│   ├── sample-output.log             : サンプルのアウトプットファイル。
+│   ├── sample-parse-config.json      : サンプルの設定ファイル。
+│   └──　sample-query.log              : サンプルのインプットファイル。
+├── parse_query_log.rb                : クエリパース用のRubyスクリプト。
+├── parse_query_log.sh                : 起動用シェルスクリプト。
+└── README                            : このファイル。
+
+## 前提条件
+以下のツールがインストール済みであること
+ * Ruby
+
+## 動作確認環境
+ * Ruby     : 2.0.0p598
+
+## 導入手順 
+1. 起動用シェルスクリプトに実行権限を付与する。
+
+  * コマンド
+    chmod +x parse_query_log.sh
+
+
+## 実行手順
+1. conf/parse-config.json 内にパース設定を記述します。
+  設定項目の説明は以下のとおりです。
+
+
+  * export_headers        : 出力時のCSVヘッダを指定します。
+
+    指定可能な値は、以下の3パターンです。
+      1. インプットファイルに存在する列の名前
+      2. query_param_matchers にて設定した name 属性に設定した値
+      3. "query_type" (query_type_matchers にて設定したtypeの値を入れる場合)
+  
+  * query_type_matchers   : クエリ本文とここで指定した正規表現をマッチさせることでクエリの種別を設定します。
+
+    - type   : 設定するクエリ種別
+    - regexp : 正規表現
+
+    例) SELECT 1 で始まるSQLに対して、"sample" という種別を設定する場合
+      "query_type_matchers" : [
+        {
+          "type" : "sample",
+          "regexp" : "\\ASELECT 1"
+        }
+      ]
+
+  * query_param_matchers  : クエリ本文に埋め込まれた値を世紀表現でマッチさせて抜き出し、出力結果に含めるための設定を行います。
+
+    - name      : 抜き出したパラメータに割り当てる名前
+    - regexp    : 正規表現
+    - position  : 正規表現中にマッチした何番目の部分を抜き出すパラメータとするか
+
+    例) クエリ内に指定された購入日を出力結果に含めたい場合
+      "query_param_matchers" : [
+        {
+          "name" : "purchased_from",
+          "regexp": "'(\\d{4}-\\d{2}-\\d{2})' <= (pos\\.)?purchased_date AND (pos\\.)?purchased_date < '(\\d{4}-\\d{2}-\\d{2})'",
+          "position" : 1
+        }
+      ]
+
+2. 起動用スクリプトを起動します。
+  
+  ./parse_query_log.sh に 引数を渡して実行します。
+        引数[0] : パース対象のファイルパス(必須)
+        
+3. パース結果は標準出力に吐出されます。
+

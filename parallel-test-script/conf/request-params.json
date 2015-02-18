@@ -1,0 +1,18 @@
+{ 
+  "params" : {
+
+    "sample-3month" : {
+      "from_date" : "2014-07-01",
+      "to_date" : "2014-10-01",
+      "item_code" : "xxxxxx",
+      "shop_code" : "000000"
+    },
+
+    "sample-6month" : {
+      "from_date" : "2014-07-01",
+      "to_date" : "2014-10-01",
+      "item_code" : "xxxxxx",
+      "shop_code" : "000000"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "export_headers" : [
+  ],
+
+  "query_type_matchers" : [
+    {
+      "type" : "",
+      "regexp" : ""
+    }
+  ],
+
+  "query_param_matchers" : [
+    {
+      "name" : "",
+      "regexp": "",
+      "position" : -1
+    }
+  ]
+}

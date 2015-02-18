@@ -1,0 +1,4 @@
+[
+  {"type":"sample-3month", "trial_count":6, "scripts":["sample.sql"]},
+  {"type":"sample-6month", "trial_count":6, "scripts":["sample.sql"]}
+]

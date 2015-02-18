@@ -1,0 +1,90 @@
+## Redshift起動停止スクリプト
+
+既存のRedshiftクラスタに対して、停止・再起動を行い、スナップショットの世代管理を行います。
+初回のクラスタ作成に関しては、マネジメントコンソールから行ってください。
+
+## ディレクトリ構成
+.                                       : このスクリプトのルートディレクトリ。
+├── conf
+│   └── config.json                     : スクリプトの動作設定用ファイル。
+├── data
+│   └── snapshot.json                   : スナップショットの世代管理用ファイル。
+├── Gemfile
+├── lib                                 : Redshift起動停止用の依存クラス群。
+│   ├── redshift_cluster.rb
+│   ├── redshift_shutdown_runner.rb
+│   ├── redshift_snapshot.rb
+│   └── redshift_startup_runner.rb
+├── logs
+│   └── redshift_ctl.logs               : スクリプト実行時のログファイル。
+├── README                              : このファイル。
+├── redshift_ctl.rb                     : Redshift起動停止用のRubyスクリプト
+└── redshift_ctl.sh                     : 起動用シェルスクリプト。
+
+
+## 前提条件
+以下のツールがインストール済みであること
+ * Ruby
+ * RubyGems
+ * bundler
+
+## 動作確認環境
+ * Ruby     : 2.0.0p598
+ * RubyGems : 2.0.14
+ * Bunlder  : 1.7.11
+
+## 導入手順
+1. 依存関係のあるRubyGemsをインストールする。
+
+  * コマンド
+    bundle install --path vendor/bundle
+ 
+2. 起動用シェルスクリプト(redshift_ctl.sh)に実行権限を付与する。
+
+  * コマンド
+    chmod +x redshift_ctl.sh
+
+
+## 実行手順
+1. スクリプトの動作設定用ファイル(conf/config.json) に設定を記述する。
+
+  設定項目の説明は以下のとおり。
+
+  * スクリプト全体の設定
+  region                              : 対象のRedshiftクラスタを作成する(が存在する）リージョンを指定。
+  access_key_id                       : AWS-API 用のアクセスキー
+  secret_access_key                   : AWS-API用の秘密キー
+  concurrent_execution_count          : 起動停止時の同時処理数。
+  clusters                            : 対象とするクラスタの情報
+
+  * 対象クラスタごとの設定
+  cluster_identifier                  : 対象クラスタの識別子
+  restore_options                     : クラスタのリストア設定
+  delete_options                      : クラスタの削除設定
+  snapshot_options                    : クラスタのスナップショット設定
+
+  * リストア設定
+  port                                : ポート番号
+  availability_zone                   : AvailabilityZone設定
+  cluster_subnet_group_name           : クラスタのサブネットグループ名
+  cluster_parameter_group_name        : クラスタのパラメータグループ名
+  vpc_security_group_ids              : VPCのセキュリティグループID一覧
+  preferred_maintenance_window        : メンテナンスウィンドウ
+  automated_snapshot_retention_period : 自動スナップショットの保持間隔
+  elastic_ip                          : 割り当てる固定IP(publicly_accessible がtrueの時のみ有効)
+  publicly_accessible                 : クラスタに対する外部からのアクセスが可能かどうか
+  allow_version_upgrade               : 自動バージョンアップの有無
+        
+  * 削除設定
+  skip_final_cluster_snapshot         : 削除時にスナップショットを取得するかどうか
+
+  * スナップショット設定
+  log_file_path                       : クラスタに対するスナップショットの履歴管理用ファイルへのパス             
+  retention_ages                      : クラスタに対するスナップショットを何世代残すか
+
+2. 起動用スクリプト（redshift_ctl.sh）を起動する。
+  
+  引数には、以下のどちらか一方の値が必須です。
+  
+  * startup   : 保存されたスナップショット情報から、Redsfhitクラスタをリストアします。
+  * shutdown  : 起動中のRedshiftクラスタのスナップショットを取得した後、クラスタを削除します。

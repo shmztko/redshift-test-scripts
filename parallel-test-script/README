@@ -1,0 +1,54 @@
+## 並列実行テストスクリプト
+
+## ディレクトリ構成
+.
+├── conf
+│  ├── db-config.json        : データベース接続情報の設定ファイル
+│  ├── query-config.json        : クエリ実行情報の設定ファイル
+│  └── request-params.json       : クエリ種別ごとのパラメータ設定ファイル
+├── exec_test.sh                : スクリプトの起動シェル
+├── parallel-test.rb            : 実際の処理がk記述されたRubyスクリプト
+├── README                      : このファイル
+└── sql                         : 実行されるSQLファイル格納用ディレクトリ
+    └── sample.sql
+
+
+## 実行手順 
+1. conf/query-config.json 内にJSON形式でクエリの実行情報を設定します。
+	フォーマットは以下のとおりです。
+
+	* type     : クエリ種別
+	* rate     : クエリ実行が実行される割合
+	* scripts  : 実行するスクリプト。複数指定可能
+
+	例)	{"type":"sample","rate":0.01,"scripts":["sample.sql", "sample2.sql"]}
+
+2. conf/request-params.json 内にJSON形式でクエリのパラメータを設定します。
+  パラメータはpsqlコマンドの -v オプション経由でクエリに渡されます。
+
+  例) type sampleに対応する分析のパラメータを設定する場合
+
+  "abcl" : {
+    "from_date" : "2014-07-01",
+    "to_date" : "2014-10-01",
+    "shop_code" : "\\'59\\'",
+    "item_code" : "\\'001\\'"
+  }
+
+  ※注意 : 指定する値に、シングルクォーテーションが含まれる場合は、バックスラッシュ2つでパースして渡す必要があります。
+
+3. conf/db-config.json 内にデータベースの接続情報を設定します。
+  
+  例） ローカルホストに接続する場合
+  {
+    "host" : "localhost",
+    "port" : 5439,
+    "db_name" : "postgres",
+    "db_user" : "postgres",
+    "db_pass" : "postgres"
+  }
+
+5. テストを実行します。
+    ./exec_test.sh に 引数を渡して実行します。
+        引数[0] : 実行するリクエスト総数(必須)
+        引数[1] : 何分かけて指定されたリクエストを実行するか(任意:デフォルト60分)

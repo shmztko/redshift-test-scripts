@@ -30,3 +30,5 @@ echo "`date +'%Y-%m-%dT%H:%M:%S'` - Test log parse finished." >> $log_file
 mv ./parse-query-log/query-log-${test_started_at}_${test_finished_at}.log ./$output_dir/
 
 tail ./$output_dir/test-result_${test_started_at}_${test_finished_at}.log
+
+echo "`date +'%Y-%m-%dT%H:%M:%S'` - Test finished." >> $log_file
